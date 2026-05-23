@@ -138,6 +138,9 @@ AFTER UPDATE OR INSERT ON submissions
 FOR EACH ROW EXECUTE FUNCTION handle_arena_submission_success();
 
 -- 2.3 Hardened Submission Flow
+DROP FUNCTION IF EXISTS public.submit_problem_solution(uuid, text, text, uuid, uuid);
+DROP FUNCTION IF EXISTS public.submit_problem_solution(uuid, text, text, uuid, uuid, boolean);
+
 CREATE OR REPLACE FUNCTION submit_problem_solution(
     p_problem_id UUID,
     p_code TEXT,

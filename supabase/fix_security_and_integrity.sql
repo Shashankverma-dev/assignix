@@ -220,6 +220,9 @@ CREATE TRIGGER on_submission_insert_security
     EXECUTE FUNCTION enforce_submission_security();
 
 -- RPC Function for "Accepted" status (The Source of Truth)
+DROP FUNCTION IF EXISTS public.submit_problem_solution(uuid, text, text, uuid, uuid);
+DROP FUNCTION IF EXISTS public.submit_problem_solution(uuid, text, text, uuid, uuid, boolean);
+
 CREATE OR REPLACE FUNCTION submit_problem_solution(
     p_problem_id UUID,
     p_code TEXT,
