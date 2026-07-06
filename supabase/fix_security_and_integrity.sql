@@ -125,13 +125,13 @@ BEGIN
         new.email,
         COALESCE(new.raw_user_meta_data->>'name', ''),
         final_username,
-        COALESCE(new.raw_user_meta_data->>'role', 'student')
+        new.raw_user_meta_data->>'role' -- Keep NULL if not provided in raw_user_meta_data (e.g. Google Sign-in)
     )
     ON CONFLICT (email) DO UPDATE SET
         id = EXCLUDED.id,
         name = CASE WHEN public.users.name = '' OR public.users.name IS NULL THEN EXCLUDED.name ELSE public.users.name END,
         username = CASE WHEN public.users.username LIKE 'user_%' THEN EXCLUDED.username ELSE public.users.username END,
-        role = COALESCE(EXCLUDED.role, public.users.role),
+        role = COALESCE(public.users.role, EXCLUDED.role), -- Preserve existing role, don't overwrite if already set
         updated_at = now();
 
     RETURN new;

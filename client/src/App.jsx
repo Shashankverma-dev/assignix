@@ -11,6 +11,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute'
 import Landing          from './pages/Landing'
 import Login            from './pages/auth/Login'
 import Signup           from './pages/auth/Signup'
+import RoleSelection    from './pages/auth/RoleSelection'
 import Dashboard        from './pages/dashboard/Dashboard'
 import Classrooms       from './pages/classrooms/Classrooms'
 import ClassroomDetail  from './pages/classrooms/ClassroomDetail'
@@ -64,11 +65,34 @@ export default function App() {
 
       <Route
         path="/login"
-        element={user ? <Navigate to={user.role === 'admin' ? "/admin" : "/dashboard"} replace /> : <Login />}
+        element={
+          user ? (
+            !user.role ? <Navigate to="/role-selection" replace /> :
+            user.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />
+          ) : (
+            <Login />
+          )
+        }
       />
       <Route
         path="/signup"
-        element={user ? <Navigate to="/dashboard" replace /> : <Signup />}
+        element={
+          user ? (
+            !user.role ? <Navigate to="/role-selection" replace /> : <Navigate to="/dashboard" replace />
+          ) : (
+            <Signup />
+          )
+        }
+      />
+      <Route
+        path="/role-selection"
+        element={
+          user ? (
+            user.role ? <Navigate to="/dashboard" replace /> : <RoleSelection />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
       />
 
       {/* Authenticated shell */}

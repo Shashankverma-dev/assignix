@@ -83,13 +83,17 @@ CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (is_admin());
 DROP POLICY IF EXISTS "Admins can delete users" ON users;
 CREATE POLICY "Admins can delete users" ON users FOR DELETE USING (is_admin());
 
--- 4. Prevent users from changing their own role during update
+-- 4. Prevent users from changing their own role during update (unless current role is NULL)
 DROP POLICY IF EXISTS "Users can update their own profile" ON users;
 CREATE POLICY "Users can update their own profile" ON users
   FOR UPDATE USING (auth.uid() = id)
   WITH CHECK (
     auth.uid() = id AND 
-    (role = (SELECT role FROM users WHERE id = auth.uid()))
+    (
+      role IS NOT DISTINCT FROM (SELECT role FROM users WHERE id = auth.uid())
+      OR
+      (SELECT role FROM users WHERE id = auth.uid()) IS NULL
+    )
   );
 
 -- 4. CHALLENGES (Arena) Policies

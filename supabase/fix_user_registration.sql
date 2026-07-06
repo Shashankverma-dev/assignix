@@ -27,13 +27,13 @@ BEGIN
         new.email,
         COALESCE(new.raw_user_meta_data->>'name', ''),
         final_username,
-        COALESCE(new.raw_user_meta_data->>'role', 'student')
+        new.raw_user_meta_data->>'role' -- Keep NULL if not provided in raw_user_meta_data (e.g. Google Sign-in)
     )
     ON CONFLICT (email) DO UPDATE SET
         id = EXCLUDED.id,
         name = CASE WHEN public.users.name = '' OR public.users.name IS NULL THEN EXCLUDED.name ELSE public.users.name END,
         username = CASE WHEN public.users.username LIKE 'user_%' THEN EXCLUDED.username ELSE public.users.username END,
-        role = COALESCE(EXCLUDED.role, public.users.role),
+        role = COALESCE(public.users.role, EXCLUDED.role), -- Preserve existing role, don't overwrite if already set
         updated_at = now();
 
     RETURN new;
@@ -57,13 +57,17 @@ DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON users;
 CREATE POLICY "Public profiles are viewable by everyone" ON users
   FOR SELECT USING (true);
 
--- Allow users to update their own profile EXCEPT the role
+-- Allow users to update their own profile EXCEPT the role (unless current role is NULL)
 DROP POLICY IF EXISTS "Users can update their own profile" ON users;
 CREATE POLICY "Users can update their own profile" ON users
   FOR UPDATE USING (auth.uid() = id)
   WITH CHECK (
     auth.uid() = id AND 
-    (role = (SELECT role FROM users WHERE id = auth.uid())) -- Prevent role changes
+    (
+      role IS NOT DISTINCT FROM (SELECT role FROM users WHERE id = auth.uid())
+      OR
+      (SELECT role FROM users WHERE id = auth.uid()) IS NULL
+    )
   );
 
 -- Admin override for updates

@@ -99,16 +99,17 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const loginWithGoogle = useCallback(async (role = 'student') => {
+  const loginWithGoogle = useCallback(async (role = null) => {
     try {
+      const oauthOptions = {
+        redirectTo: `${window.location.origin}/dashboard`,
+      };
+      if (role) {
+        oauthOptions.data = { role };
+      }
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-          data: {
-            role
-          }
-        }
+        options: oauthOptions
       });
       if (error) return { success: false, message: error.message };
       return { success: true, data };
