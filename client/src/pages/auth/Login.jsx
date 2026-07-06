@@ -57,7 +57,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -79,6 +79,21 @@ export default function Login() {
       }
     } catch (_err) {
       setError('Connection failed. Server might be offline.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    setError('')
+    setLoading(true)
+    try {
+      const result = await loginWithGoogle()
+      if (!result.success) {
+        setError(result.message)
+      }
+    } catch (_err) {
+      setError('Google sign-in failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -133,6 +148,7 @@ export default function Login() {
           formFields={formFields}
           goTo={() => navigate('/signup', { replace: true })}
           handleSubmit={handleSubmit}
+          onGoogleLogin={handleGoogleLogin}
           loading={loading}
         />
       </div>

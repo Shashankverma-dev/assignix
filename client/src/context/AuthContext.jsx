@@ -99,6 +99,24 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async (role = 'student') => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          data: {
+            role
+          }
+        }
+      });
+      if (error) return { success: false, message: error.message };
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }, []);
+
   const register = useCallback(async (name, username, email, password, role = 'student') => {
     try {
       // 1. Check if username is already taken
@@ -315,6 +333,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{ 
       user, 
       login, 
+      loginWithGoogle,
       register, 
       logout, 
       updateProfile,

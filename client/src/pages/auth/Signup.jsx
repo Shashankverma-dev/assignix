@@ -64,7 +64,7 @@ export default function Signup() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { register } = useAuth()
+  const { register, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -94,6 +94,21 @@ export default function Signup() {
       }
     } catch (_err) {
       setError('Connection refused. Is the network operational?')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    setError('')
+    setLoading(true)
+    try {
+      const result = await loginWithGoogle(formData.role)
+      if (!result.success) {
+        setError(result.message)
+      }
+    } catch (_err) {
+      setError('Google sign-up failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -201,6 +216,7 @@ export default function Signup() {
           onSubmit={handleSubmit}
           goTo={() => navigate('/login', { replace: true })}
           googleLogin="Sign up with Google"
+          onGoogleLogin={handleGoogleLogin}
           extraContent={roleSelector}
           loading={loading}
         />

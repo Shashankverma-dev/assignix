@@ -264,6 +264,7 @@ const AnimatedForm = memo(function AnimatedForm({
   fieldPerRow = 1,
   onSubmit,
   googleLogin,
+  onGoogleLogin,
   goTo,
   extraContent,
   loading: externalLoading,
@@ -331,7 +332,7 @@ const AnimatedForm = memo(function AnimatedForm({
             <button
               className="g-button group/btn bg-transparent w-full rounded-md border h-10 font-medium outline-hidden cursor-pointer"
               type="button"
-              onClick={() => console.log('Google login clicked')}
+              onClick={onGoogleLogin || (() => console.log('Google login clicked'))}
             >
               <span className="flex items-center justify-center w-full h-full gap-3 text-sm font-bold text-slate-700">
                 <img
@@ -489,6 +490,7 @@ const AuthTabs = memo(function AuthTabs({
   formFields,
   goTo,
   handleSubmit,
+  onGoogleLogin,
   extraContent,
   loading,
 }) {
@@ -501,6 +503,7 @@ const AuthTabs = memo(function AuthTabs({
           onSubmit={handleSubmit}
           goTo={goTo}
           googleLogin="Login with Google"
+          onGoogleLogin={onGoogleLogin}
           extraContent={extraContent}
           loading={loading}
         />
