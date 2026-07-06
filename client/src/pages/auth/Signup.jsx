@@ -103,7 +103,7 @@ export default function Signup() {
     setError('')
     setLoading(true)
     try {
-      const result = await loginWithGoogle(formData.role)
+      const result = await loginWithGoogle()
       if (!result.success) {
         setError(result.message)
       }
