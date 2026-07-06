@@ -12,6 +12,10 @@ export function AuthProvider({ children }) {
   const fetchUserProfile = useCallback(async (userId, forceLoading = false) => {
     if (forceLoading) setLoading(true);
     try {
+      // Get the current session to extract user metadata role if necessary
+      const { data: { session } } = await supabase.auth.getSession();
+      const metaRole = session?.user?.user_metadata?.role || null;
+
       // Use a single join query to fetch profile, friends, and pending requests
       const { data: profile, error: profileError } = await supabase
         .from('users')
@@ -49,15 +53,18 @@ export function AuthProvider({ children }) {
         ...(profile?.received_requests || [])
       ];
       
+      const userRole = profile?.role || metaRole || null;
+      
       const userData = profile ? { 
         ...profile, 
         id: userId, 
+        role: userRole,
         friends: detailedFriends,
         friendRequests: requests,
         notifications: [] // Will be fetched separately
       } : { 
         id: userId, 
-        role: 'student', 
+        role: userRole, 
         friends: [], 
         friendRequests: [],
         notifications: []
